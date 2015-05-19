@@ -9,4 +9,9 @@ public class Student extends User {
         this.remainingQuota = remainingQuota;
         this.time = time;
     }
+
+    @Override
+    public String toString(){
+        return this.name;
+    }
 }
