@@ -31,7 +31,7 @@ public class Library {
             switch (op) {
                 case 1:
                     registerNewUser("Guilherme", "Student");
-                    registerNewUser("Arnaldo", "Student");
+                    //registerNewUser("Arnaldo", "Student");
                     printList(userList);
                     break;
                 case 2:
