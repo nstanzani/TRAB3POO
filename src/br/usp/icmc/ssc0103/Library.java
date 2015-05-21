@@ -1,6 +1,9 @@
 package br.usp.icmc.ssc0103;
 
+import com.opencsv.CSVReader;
+
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -36,11 +39,10 @@ public class Library {
             switch (op) {
                 case 1:
                     registerNewUser();
-                    printList(userList);
                     break;
                 case 2:
                     registerNewBook();
-                    System.out.println(bookList);
+                    //System.out.println(bookList);
                     break;
                 case 3:
                     //registerNewLoan();
@@ -52,9 +54,11 @@ public class Library {
                     saveChanges(userList);
                     break;
                 case 6:
+                    printUserList(userList);
                     //printAllUsers();
                     break;
                 case 7:
+                    printBookList(bookList);
                     //printAllBooks();
                     break;
                 case 8:
@@ -95,7 +99,7 @@ public class Library {
         }
     }
 
-    public static void printList(List list) {
+    public static void printUserList(List list) {
         //System.out.println(list);
 
         list
@@ -153,7 +157,32 @@ public class Library {
         bookList.add(book);
     }
 
+    public static void printBookList (List list) {
+
+        list
+                .stream()
+                .sorted(Comparator.comparing(Book::getTitle))
+                .forEach(System.out::println);
+    }
+
+    public static void loadPreviousData () {
+        try {
+            CSVReader reader = new CSVReader(new FileReader("users.txt"));
+            String [] nextLine;
+
+            while ((nextLine = reader.readNext()) != null) {
+                // nextLine[] is an array of values from the line
+                System.out.println(nextLine[0] + nextLine[1] + "etc...");
+            }
+        }
+        catch (IOException e) {
+            System.out.println("Error to open file!");
+        }
+
+    }
+
     public static void main(String[] args) {
+        loadPreviousData();
         try {
             menu();
         }
