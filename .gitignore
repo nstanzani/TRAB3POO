@@ -4,7 +4,7 @@
 .mtj.tmp/
 
 # Package Files #
-#*.jar vamos precisar do .jar
+#*.jar o trabalhor vai ser entrege pelo guthub, precisa constar o .jar
 *.war
 *.ear
 
