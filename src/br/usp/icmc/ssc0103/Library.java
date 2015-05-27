@@ -7,34 +7,39 @@ import java.io.IOException;
 import java.util.*;
 
 public class Library {
-
+    int nextCode = 0;
     static List<User> userList = new LinkedList<User>();
     static List<Book> bookList = new LinkedList<Book>();
+    static List<Loan> loanList = new LinkedList<Loan>();
 
     public void loadLists() {
         try {
             BufferedReader inUser = new BufferedReader(new FileReader("users.csv"));
             BufferedReader inBook = new BufferedReader(new FileReader("books.csv"));
             String line;
-            int penalty, quota, time;
+            int penalty, quota, time, code;
             while ((line = inUser.readLine()) != null) {
                 String[] splitLine = line.split(",");
                 quota = Integer.parseInt(splitLine[1]);
                 time = Integer.parseInt(splitLine[2]);
                 penalty = Integer.parseInt(splitLine[3]);
+                code = Integer.parseInt(splitLine[5]);
                 if (splitLine[4].toLowerCase().equals("estudante")) {
-                    Student user = new Student(splitLine[0], quota, time);
+                    Student user = new Student(splitLine[0], quota, time, code);
                     user.setPenalty(penalty);
                     userList.add(user);
+                    nextCode++;
                 }
                 if (splitLine[4].toLowerCase().equals("professor")) {
-                    Professor user = new Professor(splitLine[0], quota, time);
+                    Professor user = new Professor(splitLine[0], quota, time, code);
                     user.setPenalty(penalty);
                     userList.add(user);
+                    nextCode++;
                 } else if (splitLine[4].toLowerCase().equals("comunidade")) {
-                    Community user = new Community(splitLine[0], quota, time);
+                    Community user = new Community(splitLine[0], quota, time, code);
                     user.setPenalty(penalty);
                     userList.add(user);
+                    nextCode++;
                 }
             }
             while ((line = inBook.readLine()) != null) {
@@ -78,7 +83,7 @@ public class Library {
                     registerNewBook();
                     break;
                 case 3:
-                    //registerNewLoan();
+                    registerNewLoan();
                     break;
                 case 4:
                     //registerNewDev();
@@ -95,7 +100,8 @@ public class Library {
                     printAll(b);
                     break;
                 case 8:
-                    //printAllLoans();
+                    Loan l = null;
+                    printAll(l);
                     break;
                 case 0:
                     System.exit(0);
@@ -105,7 +111,35 @@ public class Library {
 
     }
 
-    public void registerNewUser() {
+    private void registerNewLoan() {
+        Optional<Book> book;
+        Optional<User> user;
+        Scanner scanner = new Scanner(System.in);
+        String bookTitle;
+        int userCode;
+
+        System.out.println("Digite o nome do livro que o usuario deseja pegar emprestado: ");
+        bookTitle = scanner.nextLine();
+        book = bookList
+                .stream()
+                .filter(b -> b.getTitle().toLowerCase().equals(bookTitle.toLowerCase()))
+                .findFirst();
+
+        System.out.println("Digite o codigo do usuario que deseja fazer o emprestimo: ");
+        userCode = scanner.nextInt();
+
+        user = userList
+                .stream()
+                .filter(u -> u.getCode() == userCode)
+                .findFirst();
+
+        if (user.isPresent() && book.isPresent()) {
+            Loan loan = new Loan(user.get().getName(), book.get().getTitle());
+            loanList.add(loan);
+        }
+    }
+
+    private void registerNewUser() {
 
         Scanner scanner = new Scanner(System.in);
         String name;
@@ -117,35 +151,44 @@ public class Library {
         userType = scanner.nextLine();
 
         if (userType.toLowerCase().equals("estudante")) {
-            Student user = new Student(name, 4, 15);
+            Student user = new Student(name, 4, 15, nextCode);
             userList.add(user);
+            nextCode++;
         } else if (userType.toLowerCase().equals("professor")) {
-            Professor user = new Professor(name, 6, 60);
+            Professor user = new Professor(name, 6, 60, nextCode);
             userList.add(user);
+            nextCode++;
         } else if (userType.toLowerCase().equals("comunidade")) {
-            Community user = new Community(name, 2, 15);
+            Community user = new Community(name, 2, 15, nextCode);
             userList.add(user);
+            nextCode++;
         } else {
             System.out.println("Tipo de usuário inválido!");
         }
     }
 
-    public void printAll(User user) {
-
+    private void printAll(User user) {
         userList
                 .stream()
-                .sorted(Comparator.comparing(User::getName))
+                .sorted(Comparator.comparing(User::getCode))
                 .forEach(System.out::println);
     }
 
-    public void printAll(Book book) {
+    private void printAll(Book book) {
         bookList
                 .stream()
                 .sorted(Comparator.comparing(Book::getTitle))
                 .forEach(System.out::println);
     }
 
-    public void saveChanges() {
+    private void printAll(Loan book) {
+        loanList
+                .stream()
+                .sorted(Comparator.comparing(Loan::getName))
+                .forEach(System.out::println);
+    }
+
+    private void saveChanges() {
         Thread t = new Thread(() ->{
             try {
                 ListIterator userItr = userList.listIterator();
@@ -171,7 +214,7 @@ public class Library {
         t.start();
     }
 
-    public void registerNewBook() {
+    private void registerNewBook() {
         Scanner scanner = new Scanner(System.in);
         String title;
         String author;

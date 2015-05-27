@@ -6,12 +6,33 @@ package br.usp.icmc.ssc0103;
 public class Loan {
     private String name;
     private String book;
-    private Date rentDate;
-    private Date devDate;
 
+    Loan(String name, String book) {
+        this.name = name;
+        this.book = book;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setBook(String book) {
+        this.book = book;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getBook() {
+        return book;
+    }
     @Override
     public String toString(){
-        return "Nome: " + name + "Livro: " + book + "Data de empréstimo" +
-                rentDate.toString() + "Data de devolução" + devDate.toString();
+        return "Nome: " + name + "\nLivro: " + book + "\n";
+    }
+
+    public String toFile() {
+        return name + "," + book + "\n";
     }
 }

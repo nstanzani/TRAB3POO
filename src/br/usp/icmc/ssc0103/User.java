@@ -2,6 +2,7 @@ package br.usp.icmc.ssc0103;
 
 public abstract class User {
     String name;
+    int code;
     int remainingQuota;
     int time;
     int penalty = 0;
@@ -9,6 +10,10 @@ public abstract class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
     }
 
     public void setRemainingQuota(int remainingQuota) {
@@ -31,6 +36,10 @@ public abstract class User {
         return name;
     }
 
+    public int getCode() {
+        return code;
+    }
+
     public int getRemainingQuota() {
         return remainingQuota;
     }
@@ -49,11 +58,11 @@ public abstract class User {
 
     @Override
     public String toString() {
-        return "Nome: " + this.name + "\nTipo: " + this.type + "\nCota Restante: " + this.remainingQuota +
-                "\nTempo que pode ficar com o livro: " + this.time + " dias\nPenalidade: " + this.penalty + " dias";
+        return "Codigo: " + this.code + "\nNome: " + this.name + "\nTipo: " + this.type + "\nCota Restante: " + this.remainingQuota +
+                "\nTempo que pode ficar com o livro: " + this.time + " dias\nPenalidade: " + this.penalty + " dias\n";
     }
 
     public String toFile() {
-        return this.name + "," + this.remainingQuota + "," + this.time + "," + this.penalty + "," + this.type + "\n";
+        return this.name + "," + this.remainingQuota + "," + this.time + "," + this.penalty + "," + this.type + "," + this.code + "\n";
     }
 }

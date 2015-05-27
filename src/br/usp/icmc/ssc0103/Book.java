@@ -20,7 +20,7 @@ public class Book {
     }
 
     public String toFile() {
-        return this.title + "," + this.author + "," + this.textBook;
+        return this.title + "," + this.author + "," + this.textBook + "\n";
     }
 
     public void setTitle(String title) {
