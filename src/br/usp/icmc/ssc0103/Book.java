@@ -1,8 +1,5 @@
 package br.usp.icmc.ssc0103;
 
-/**
- * Created by naldost on 19/05/15.
- */
 public class Book {
     private String title;
     private String author;
@@ -19,7 +16,11 @@ public class Book {
 
     @Override
     public String toString(){
-        return this.title + ", " + this.author;
+        return "Titulo: " + this.title + "\nAutor: " + this.author;
+    }
+
+    public String toFile() {
+        return this.title + "," + this.author + "," + this.textBook;
     }
 
     public void setTitle(String title) {

@@ -1,13 +1,11 @@
 package br.usp.icmc.ssc0103;
 
-/**
- * Created by naldost on 19/05/15.
- */
 public abstract class User {
     String name;
     int remainingQuota;
     int time;
     int penalty = 0;
+    String type;
 
     public void setName(String name) {
         this.name = name;
@@ -23,6 +21,10 @@ public abstract class User {
 
     public void setTime(int time) {
         this.time = time;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getName() {
@@ -41,8 +43,17 @@ public abstract class User {
         return penalty;
     }
 
+    public String getType() {
+        return type;
+    }
+
     @Override
     public String toString() {
-        return this.name + ", " + this.remainingQuota + ", " + this.time + ", " + this.penalty;
+        return "Nome: " + this.name + "\nTipo: " + this.type + "\nCota Restante: " + this.remainingQuota +
+                "\nTempo que pode ficar com o livro: " + this.time + " dias\nPenalidade: " + this.penalty + " dias";
+    }
+
+    public String toFile() {
+        return this.name + "," + this.remainingQuota + "," + this.time + "," + this.penalty + "," + this.type + "\n";
     }
 }

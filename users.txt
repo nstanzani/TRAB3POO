@@ -1,3 +1,0 @@
-Guilherme, 4, 15, 0
-Simao, 6, 60, 0
-Arnaldo, 4, 15, 0

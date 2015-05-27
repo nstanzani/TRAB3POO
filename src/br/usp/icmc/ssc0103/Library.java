@@ -1,27 +1,61 @@
 package br.usp.icmc.ssc0103;
 
-import com.opencsv.CSVReader;
-
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.*;
 
-/**
- * Created by naldost on 19/05/15.
- */
 public class Library {
 
     static List<User> userList = new LinkedList<User>();
     static List<Book> bookList = new LinkedList<Book>();
 
-    public static void menu() throws Exception{
+    public void loadLists() {
+        try {
+            BufferedReader inUser = new BufferedReader(new FileReader("users.csv"));
+            BufferedReader inBook = new BufferedReader(new FileReader("books.csv"));
+            String line;
+            int penalty, quota, time;
+            while ((line = inUser.readLine()) != null) {
+                String[] splitLine = line.split(",");
+                quota = Integer.parseInt(splitLine[1]);
+                time = Integer.parseInt(splitLine[2]);
+                penalty = Integer.parseInt(splitLine[3]);
+                if (splitLine[4].toLowerCase().equals("estudante")) {
+                    Student user = new Student(splitLine[0], quota, time);
+                    user.setPenalty(penalty);
+                    userList.add(user);
+                }
+                if (splitLine[4].toLowerCase().equals("professor")) {
+                    Professor user = new Professor(splitLine[0], quota, time);
+                    user.setPenalty(penalty);
+                    userList.add(user);
+                } else if (splitLine[4].toLowerCase().equals("comunidade")) {
+                    Community user = new Community(splitLine[0], quota, time);
+                    user.setPenalty(penalty);
+                    userList.add(user);
+                }
+            }
+            while ((line = inBook.readLine()) != null) {
+                String[] splitLine = line.split(",");
+                Book book;
+                if (splitLine[2].toLowerCase().equals("false")) {
+                    book = new Book(splitLine[0], splitLine[1], false);
+                    bookList.add(book);
+                } else if (splitLine[2].toLowerCase().equals("true")) {
+                    book = new Book(splitLine[0], splitLine[1], true);
+                    bookList.add(book);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao abrir o arquivo");
+        }
+    }
 
+    public void menu() {
         int op;
         Scanner scanner = new Scanner(System.in);
-
         do {
             System.out.println("\t\tMenu\n");
             System.out.println("1 - Cadastrar novo usuário");
@@ -42,7 +76,6 @@ public class Library {
                     break;
                 case 2:
                     registerNewBook();
-                    //System.out.println(bookList);
                     break;
                 case 3:
                     //registerNewLoan();
@@ -51,29 +84,28 @@ public class Library {
                     //registerNewDev();
                     break;
                 case 5:
-                    saveChanges(userList);
+                    saveChanges();
                     break;
                 case 6:
-                    printUserList(userList);
-                    //printAllUsers();
+                    User u = null;
+                    printAll(u);
                     break;
                 case 7:
-                    printBookList(bookList);
-                    //printAllBooks();
+                    Book b = null;
+                    printAll(b);
                     break;
                 case 8:
                     //printAllLoans();
                     break;
                 case 0:
-                    //saveChanges();
-                    //System.out.print("\033[H\033[2J");
                     System.exit(0);
             }
 
         } while (op != 0);
+
     }
 
-    public static void registerNewUser() {
+    public void registerNewUser() {
 
         Scanner scanner = new Scanner(System.in);
         String name;
@@ -81,54 +113,65 @@ public class Library {
 
         System.out.println("Digite o nome do usuário: ");
         name = scanner.nextLine();
-        System.out.println("Digite o tipo de conta do usuário: ");
+        System.out.println("Digite o tipo de conta do usuário (estudante, professor ou comunidade): ");
         userType = scanner.nextLine();
 
-        if (userType.equals("Student")) {
+        if (userType.toLowerCase().equals("estudante")) {
             Student user = new Student(name, 4, 15);
             userList.add(user);
-        } else if (userType.equals("Professor")) {
+        } else if (userType.toLowerCase().equals("professor")) {
             Professor user = new Professor(name, 6, 60);
             userList.add(user);
-        } else if (userType.equals("Community")) {
+        } else if (userType.toLowerCase().equals("comunidade")) {
             Community user = new Community(name, 2, 15);
             userList.add(user);
         } else {
             System.out.println("Tipo de usuário inválido!");
-            return;
         }
     }
 
-    public static void printUserList(List list) {
-        //System.out.println(list);
+    public void printAll(User user) {
 
-        list
+        userList
                 .stream()
                 .sorted(Comparator.comparing(User::getName))
                 .forEach(System.out::println);
     }
 
-    public static void saveChanges(List list){
+    public void printAll(Book book) {
+        bookList
+                .stream()
+                .sorted(Comparator.comparing(Book::getTitle))
+                .forEach(System.out::println);
+    }
+
+    public void saveChanges() {
         Thread t = new Thread(() ->{
             try {
-                ListIterator itr = list.listIterator();
-                File f = new File("users.txt");
-                FileWriter fw = new FileWriter(f, true);
+                ListIterator userItr = userList.listIterator();
+                ListIterator bookItr = bookList.listIterator();
+                FileWriter fwUser = new FileWriter("users.csv");
+                FileWriter fwBook = new FileWriter("books.csv");
 
-                while (itr.hasNext()) {
-                    User user = (User) itr.next();
-                    System.out.println(user);
-                    fw.write(user.toString() + "\n");
+                while (userItr.hasNext()) {
+                    User user = (User) userItr.next();
+                    fwUser.write(user.toFile());
                 }
-                fw.close();
+                while (bookItr.hasNext()) {
+                    Book book = (Book) bookItr.next();
+                    fwBook.write(book.toFile());
+                }
+                fwUser.close();
+                fwBook.close();
+                menu();
             }
             catch (IOException e){
-                System.out.println("sjfshfhs");
+                System.out.println("Erro ao abrir o arquivo");
             }});
         t.start();
     }
 
-    public static void registerNewBook() {
+    public void registerNewBook() {
         Scanner scanner = new Scanner(System.in);
         String title;
         String author;
@@ -140,52 +183,12 @@ public class Library {
         title = scanner.nextLine();
         System.out.println("Digite o nome do autor: ");
         author = scanner.nextLine();
-        System.out.println("É um livro texto? (Sim/Não)");
+        System.out.println("É um livro texto? (Sim/Nao)");
         auxString = scanner.nextLine().toLowerCase();
 
-        //System.out.println("Passou das entradas");
-
-        if(auxString.equals("sim"))
-            textBook = true;
-        else
-            textBook = false;
-
-        //System.out.println("Saiu dos ifs");
+        textBook = auxString.toLowerCase().equals("sim");
 
         book = new Book(title, author, textBook);
-        System.out.println(book);
         bookList.add(book);
-    }
-
-    public static void printBookList (List list) {
-
-        list
-                .stream()
-                .sorted(Comparator.comparing(Book::getTitle))
-                .forEach(System.out::println);
-    }
-
-    public static void loadPreviousData () {
-        try {
-            CSVReader reader = new CSVReader(new FileReader("users.txt"));
-            String [] nextLine;
-
-            while ((nextLine = reader.readNext()) != null) {
-                // nextLine[] is an array of values from the line
-                System.out.println(nextLine[0] + nextLine[1] + "etc...");
-            }
-        }
-        catch (IOException e) {
-            System.out.println("Error to open file!");
-        }
-
-    }
-
-    public static void main(String[] args) {
-        loadPreviousData();
-        try {
-            menu();
-        }
-        catch(Exception e){}
     }
 }
