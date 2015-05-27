@@ -4,13 +4,28 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Library {
     int nextCode = 0;
+    LocalDate hoje;
     static List<User> userList = new LinkedList<User>();
     static List<Book> bookList = new LinkedList<Book>();
     static List<Loan> loanList = new LinkedList<Loan>();
+
+    public void setSimulatedDate() {
+        Scanner scanner = new Scanner(System.in);
+        int dia, mes, ano;
+        System.out.println("Digite o dia que a simulação deve ser executada (formato numerico): ");
+        dia = scanner.nextInt();
+        System.out.println("Digite o mes que a simulação deve ser executada (formato numerico): ");
+        mes = scanner.nextInt();
+        System.out.println("Digite o ano que a simulação deve ser executada (formato numerico): ");
+        ano = scanner.nextInt();
+        hoje = LocalDate.of(ano, mes, dia);
+    }
 
     public void loadLists() {
         try {
@@ -45,13 +60,13 @@ public class Library {
             while ((line = inBook.readLine()) != null) {
                 String[] splitLine = line.split(",");
                 Book book;
-                if (splitLine[2].toLowerCase().equals("false")) {
-                    book = new Book(splitLine[0], splitLine[1], false);
-                    bookList.add(book);
-                } else if (splitLine[2].toLowerCase().equals("true")) {
-                    book = new Book(splitLine[0], splitLine[1], true);
-                    bookList.add(book);
+                book = new Book(splitLine[0], splitLine[1], splitLine[2].toLowerCase().equals("true"));
+                if (splitLine[3].toLowerCase().equals("null") != true) {
+                    book.setLender(splitLine[3]);
+                    book.setRentDate(LocalDate.of(Integer.parseInt(splitLine[4]), Integer.parseInt(splitLine[5]), Integer.parseInt(splitLine[6])));
+                    book.setDevDate(LocalDate.of(Integer.parseInt(splitLine[7]), Integer.parseInt(splitLine[8]), Integer.parseInt(splitLine[9])));
                 }
+                bookList.add(book);
             }
         } catch (IOException e) {
             System.out.println("Erro ao abrir o arquivo");
@@ -62,6 +77,7 @@ public class Library {
         int op;
         Scanner scanner = new Scanner(System.in);
         do {
+            System.out.println("Data do sistema: " + hoje.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
             System.out.println("\t\tMenu\n");
             System.out.println("1 - Cadastrar novo usuário");
             System.out.println("2 - Cadastrar novo livro");
@@ -123,6 +139,7 @@ public class Library {
         book = bookList
                 .stream()
                 .filter(b -> b.getTitle().toLowerCase().equals(bookTitle.toLowerCase()))
+                .filter(b -> b.getLender().toLowerCase().equals("null"))
                 .findFirst();
 
         System.out.println("Digite o codigo do usuario que deseja fazer o emprestimo: ");
@@ -131,10 +148,15 @@ public class Library {
         user = userList
                 .stream()
                 .filter(u -> u.getCode() == userCode)
+                .filter(u -> u.getPenalty() == 0)
+                .filter(u -> u.getRemainingQuota() != 0)
                 .findFirst();
 
         if (user.isPresent() && book.isPresent()) {
-            Loan loan = new Loan(user.get().getName(), book.get().getTitle());
+            Loan loan = new Loan(user.get(), book.get());
+            book.get().setLender(user.get().getName());
+            book.get().setRentDate(hoje);
+            book.get().setDevDate(hoje.plusDays(user.get().getTime()));
             loanList.add(loan);
         }
     }

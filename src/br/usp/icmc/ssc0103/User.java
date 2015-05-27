@@ -4,7 +4,7 @@ public abstract class User {
     String name;
     int code;
     int remainingQuota;
-    int time;
+    long time;
     int penalty = 0;
     String type;
 
@@ -24,7 +24,7 @@ public abstract class User {
         this.penalty = penalty;
     }
 
-    public void setTime(int time) {
+    public void setTime(long time) {
         this.time = time;
     }
 
@@ -44,7 +44,7 @@ public abstract class User {
         return remainingQuota;
     }
 
-    public int getTime() {
+    public long getTime() {
         return time;
     }
 

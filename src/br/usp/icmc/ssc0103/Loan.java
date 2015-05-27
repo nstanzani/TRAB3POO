@@ -4,35 +4,23 @@ package br.usp.icmc.ssc0103;
  * Created by naldost on 19/05/15.
  */
 public class Loan {
-    private String name;
-    private String book;
+    private User user;
+    private Book book;
 
-    Loan(String name, String book) {
-        this.name = name;
-        this.book = book;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setBook(String book) {
+    Loan(User user, Book book) {
+        this.user = user;
         this.book = book;
     }
 
     public String getName() {
-        return name;
-    }
-
-    public String getBook() {
-        return book;
+        return user.getName();
     }
     @Override
     public String toString(){
-        return "Nome: " + name + "\nLivro: " + book + "\n";
+        return "Nome: " + user.getName() + "\nLivro: " + book.getTitle() + "\n";
     }
 
     public String toFile() {
-        return name + "," + book + "\n";
+        return user.getName() + "," + book.getTitle() + "\n";
     }
 }
