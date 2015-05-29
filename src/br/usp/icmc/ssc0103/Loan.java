@@ -1,26 +1,75 @@
 package br.usp.icmc.ssc0103;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Created by naldost on 19/05/15.
  */
 public class Loan {
-    private User user;
-    private Book book;
+    private String name;
+    private String title;
+    private int code;
+    private LocalDate rentDate;
+    private LocalDate devDate;
 
-    Loan(User user, Book book) {
-        this.user = user;
-        this.book = book;
+    Loan(String name, String title, LocalDate rentDate, LocalDate devDate, int code) {
+        this.name = name;
+        this.title = title;
+        this.rentDate = rentDate;
+        this.devDate = devDate;
+        this.code = code;
     }
 
-    public String getName() {
-        return user.getName();
-    }
     @Override
     public String toString(){
-        return "Nome: " + user.getName() + "\nLivro: " + book.getTitle() + "\n";
+        return "Nome: " + this.name + "\nLivro: " + this.title + "\nData de devolucao: " + this.devDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n";
     }
 
     public String toFile() {
-        return user.getName() + "," + book.getTitle() + "\n";
+        return this.name + "," + this.title + "," + this.rentDate.getYear() + "," + this.rentDate.getMonthValue() + ","
+                + this.rentDate.getDayOfMonth() + "," + this.devDate.getYear() + "," + this.devDate.getMonthValue() + ","
+                + this.devDate.getDayOfMonth() + "," + this.code;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setCode(int code){
+        this.code = code;
+    }
+
+    public void setRentDate(LocalDate rentDate){
+        this.rentDate = rentDate;
+    }
+
+    public void setDevDate(LocalDate devDate){
+        this.devDate = devDate;
+    }
+
+    public String getName(){
+        return this.name;
+    }
+
+    public String getTitle(){
+        return this.title;
+    }
+
+    public int getCode(){
+        return this.code;
+    }
+
+    public LocalDate getRentDate(){
+        return this.rentDate;
+    }
+
+    public LocalDate getDevDate(){
+        return this.devDate;
+    }
+
 }

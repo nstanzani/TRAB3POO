@@ -31,10 +31,10 @@ public class Book {
     public String toFile() {
         if (lender.isPresent())
             return this.title + "," + this.author + "," + this.textBook + "," + lender.get() + ","
-                    + rentDate.get().getDayOfMonth() + "," + rentDate.get().getMonth() + "," + rentDate.get().getYear()
-                    + "," + devDate.get().getDayOfMonth() + "," + devDate.get().getMonth() + "," + devDate.get().getYear() + "\n";
+                    + rentDate.get().getYear() + "," + rentDate.get().getMonthValue() + "," + rentDate.get().getDayOfMonth()
+                    + "," + devDate.get().getYear() + "," + devDate.get().getMonthValue() + "," + devDate.get().getDayOfMonth();
         else
-            return this.title + "," + this.author + "," + this.textBook + ",null,null,null,null,null,null,null\n";
+            return this.title + "," + this.author + "," + this.textBook + ",null,null,null,null,null,null,null";
     }
 
     public void setTitle(String title) {
@@ -45,16 +45,16 @@ public class Book {
         this.author = author;
     }
 
-    public void setRentDate(LocalDate rentDate) {
-        this.rentDate = Optional.of(rentDate);
+    public void setRentDate(Optional<LocalDate> rentDate) {
+        this.rentDate = rentDate;
     }
 
-    public void setDevDate(LocalDate devDate) {
-        this.devDate = Optional.of(devDate);
+    public void setDevDate(Optional<LocalDate> devDate) {
+        this.devDate = devDate;
     }
 
-    public void setLender(String lender) {
-        this.lender = Optional.of(lender);
+    public void setLender(Optional<String> lender) {
+        this.lender = lender;
     }
 
     public void setTextBook(boolean textBook) {
@@ -69,12 +69,12 @@ public class Book {
         return author;
     }
 
-    public LocalDate getRentDate() {
-        return rentDate.get();
+    public Optional<LocalDate> getRentDate() {
+        return rentDate;
     }
 
-    public LocalDate getDevDate() {
-        return devDate.get();
+    public Optional<LocalDate> getDevDate() {
+        return devDate;
     }
 
     public String getLender() {

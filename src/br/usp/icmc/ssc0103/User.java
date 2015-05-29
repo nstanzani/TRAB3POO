@@ -1,11 +1,14 @@
 package br.usp.icmc.ssc0103;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 public abstract class User {
     String name;
     int code;
     int remainingQuota;
     long time;
-    int penalty = 0;
+    Optional<LocalDate> penalty = Optional.empty();
     String type;
 
     public void setName(String name) {
@@ -20,8 +23,17 @@ public abstract class User {
         this.remainingQuota = remainingQuota;
     }
 
-    public void setPenalty(int penalty) {
+    public void setPenalty(Optional<LocalDate> penalty){
         this.penalty = penalty;
+    }
+
+    public void calculatePenalty(LocalDate base, long days) {
+        if(penalty.isPresent()) {
+            this.penalty = Optional.of(this.penalty.get().plusDays(days));
+        }
+        else {
+            this.penalty = Optional.of(base.plusDays(days));
+        }
     }
 
     public void setTime(long time) {
@@ -48,21 +60,44 @@ public abstract class User {
         return time;
     }
 
-    public int getPenalty() {
-        return penalty;
+    public LocalDate getPenalty() {
+        if(this.penalty.isPresent())
+            return penalty.get();
+        return LocalDate.MIN;
     }
 
     public String getType() {
         return type;
     }
 
+    public void decRemainingQuota(){
+        this.remainingQuota--;
+        return;
+    }
+
+    public void incRemainingQuota(){
+        this.remainingQuota++;
+        return;
+    }
+
     @Override
     public String toString() {
-        return "Codigo: " + this.code + "\nNome: " + this.name + "\nTipo: " + this.type + "\nCota Restante: " + this.remainingQuota +
-                "\nTempo que pode ficar com o livro: " + this.time + " dias\nPenalidade: " + this.penalty + " dias\n";
+        if(this.penalty.isPresent()) {
+            return "Codigo: " + this.code + "\nNome: " + this.name + "\nTipo: " + this.type + "\nCota Restante: " + this.remainingQuota +
+                    "\nTempo que pode ficar com o livro: " + this.time + " dias\nPenalidade: " + this.penalty + " dias\n";
+        }
+        else{
+            return "Codigo: " + this.code + "\nNome: " + this.name + "\nTipo: " + this.type + "\nCota Restante: " + this.remainingQuota +
+                    "\nTempo que pode ficar com o livro: " + this.time + " dias\nSem penalidade alguma\n";
+        }
     }
 
     public String toFile() {
-        return this.name + "," + this.remainingQuota + "," + this.time + "," + this.penalty + "," + this.type + "," + this.code + "\n";
+        if(penalty.isPresent()) {
+            return this.name + "," + this.remainingQuota + "," + this.time + "," + this.penalty.get().getYear() +
+                    "," + this.penalty.get().getMonthValue() + "," + this.penalty.get().getDayOfMonth() + "," + this.type + "," + this.code;
+        }
+        else
+            return this.name + "," + this.remainingQuota + "," + this.time + ",null,null,null," + this.type + "," + this.code;
     }
 }
