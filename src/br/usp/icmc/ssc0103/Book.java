@@ -11,7 +11,7 @@ public class Book {
     private Optional<String> lender;
     private boolean textBook;
 
-    Book(String title, String author, boolean textBook){
+    Book(String title, String author, boolean textBook) {
         this.title = title;
         this.author = author;
         this.textBook = textBook;
@@ -21,13 +21,16 @@ public class Book {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         if (lender.isPresent())
             return "Titulo: " + this.title + "\nAutor: " + this.author + "\nEmprestado: Sim" + "\n";
         else
             return "Titulo: " + this.title + "\nAutor: " + this.author + "\nEmprestado: Nao" + "\n";
     }
 
+    /**
+     * Format that will be used to write to file
+     */
     public String toFile() {
         if (lender.isPresent())
             return this.title + "," + this.author + "," + this.textBook + "," + lender.get() + ","
@@ -83,7 +86,7 @@ public class Book {
         return "null";
     }
 
-    public boolean getTextBook(){
+    public boolean getTextBook() {
         return textBook;
     }
 }

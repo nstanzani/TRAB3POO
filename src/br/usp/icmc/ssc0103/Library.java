@@ -1,7 +1,10 @@
 package br.usp.icmc.ssc0103;
 
-import java.io.*;
-import java.time.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -13,6 +16,9 @@ public class Library {
     static List<Book> bookList = new LinkedList<Book>();
     static List<Loan> loanList = new LinkedList<Loan>();
 
+    /**
+     * Alows to set a specific date to simulation
+     */
     public void setSimulatedDate() {
         Scanner scanner = new Scanner(System.in);
         int dia, mes, ano;
@@ -25,6 +31,10 @@ public class Library {
         today = LocalDate.of(ano, mes, dia);
     }
 
+    /**
+     * Read all data from files and stores it in linked lists
+     * to manipulate in RAM
+     */
     public void loadLists() {
         try {
             BufferedReader inUser = new BufferedReader(new FileReader("users.csv"));
@@ -35,13 +45,11 @@ public class Library {
             Optional<LocalDate> aux;
             while ((line = inUser.readLine()) != null) {
                 splitLine = line.split(",");
-                if(splitLine[3].equals("null")){
+                if (splitLine[3].equals("null")) {
                     aux = Optional.empty();
-                }
-                else if(today.isAfter(LocalDate.of(Integer.parseInt(splitLine[3]), Integer.parseInt(splitLine[4]), Integer.parseInt(splitLine[5])))){
+                } else if (today.isAfter(LocalDate.of(Integer.parseInt(splitLine[3]), Integer.parseInt(splitLine[4]), Integer.parseInt(splitLine[5])))) {
                     aux = Optional.empty();
-                }
-                else{
+                } else {
                     aux = Optional.of(LocalDate.of(Integer.parseInt(splitLine[3]), Integer.parseInt(splitLine[4]), Integer.parseInt(splitLine[5])));
                 }
                 if (splitLine[6].toLowerCase().equals("estudante")) {
@@ -73,7 +81,7 @@ public class Library {
                 }
                 bookList.add(book);
             }
-            while ((line = inLoan.readLine()) != null){
+            while ((line = inLoan.readLine()) != null) {
                 splitLine = line.split(",");
                 LocalDate rentDate = LocalDate.of(Integer.parseInt(splitLine[2]), Integer.parseInt(splitLine[3]), Integer.parseInt(splitLine[4]));
                 LocalDate devDate = LocalDate.of(Integer.parseInt(splitLine[5]), Integer.parseInt(splitLine[6]), Integer.parseInt(splitLine[7]));
@@ -82,10 +90,13 @@ public class Library {
                 loanList.add(loan);
             }
         } catch (IOException e) {
-            System.out.println("Erro ao abrir o arquivo");
+            System.out.println("Arquivo ainda não inicializado!");
         }
     }
 
+    /**
+     * Prints the menu and calls the right method for each choice
+     */
     public void menu() {
         int op;
         Scanner scanner = new Scanner(System.in);
@@ -101,6 +112,7 @@ public class Library {
             System.out.println("7 - Imprimir todos os livros");
             System.out.println("8 - Imprimir todos os empréstimos");
             System.out.println("9 - Imprimir os empréstimos em atraso");
+            System.out.println("10 - Alterar data do sistema");
             System.out.println("0 - Sair");
 
             op = scanner.nextInt();
@@ -136,9 +148,12 @@ public class Library {
                 case 9:
                     checkLate();
                     break;
+                case 10:
+                    setSimulatedDate();
+                    break;
                 case 0:
                     System.out.println("Sair pode significar perda de dados. Antes de sair, certifique-se de salvar as modificações. Digite 0 se realmente quiser sair");
-                    if(scanner.nextInt() == 0)
+                    if (scanner.nextInt() == 0)
                         System.exit(0);
                     break;
             }
@@ -147,6 +162,9 @@ public class Library {
 
     }
 
+    /**
+     * Register a new loan for a specified user
+     */
     private void registerNewLoan() {
         Optional<Book> book;
         Optional<User> user;
@@ -174,27 +192,28 @@ public class Library {
 
         if (user.isPresent() && book.isPresent()) {
 
-            if(user.get().getType().toLowerCase().equals("comunidade") && book.get().getTextBook()){
+            if (user.get().getType().toLowerCase().equals("comunidade") && book.get().getTextBook()) {
                 System.out.println("O usuario nao tem permissao suficiente para pegar esse livro emprestado");
-            }
-            else {
+            } else {
                 Loan loan = new Loan(user.get().getName(), book.get().getTitle(), today, today.plusDays(user.get().getTime()), user.get().getCode());
                 book.get().setLender(Optional.of(user.get().getName()));
                 book.get().setRentDate(Optional.of(today));
                 book.get().setDevDate(Optional.of(today.plusDays(user.get().getTime())));
                 user.get().decRemainingQuota();
                 loanList.add(loan);
+                System.out.println("Empréstimo realizado com sucesso em nome de: " + user.get().getName());
             }
-        }
-        else if(user.isPresent() != true){
+        } else if (user.isPresent() != true) {
             System.out.println("O usuario nao foi encontrado, ou nao tem cota disponivel ou tem uma penalidade pendente");
-        }
-        else if(book.isPresent() != true){
+        } else if (book.isPresent() != true) {
             System.out.println("Nao foi encontrado nenhum livro com tal titulo disponivel para emprestimo");
         }
     }
 
-    private void registerNewDev(){
+    /**
+     * Register a book devolution
+     */
+    private void registerNewDev() {
         try {
             FileWriter fw = new FileWriter("closedloans.csv", true);
             Scanner scanner = new Scanner(System.in);
@@ -220,10 +239,9 @@ public class Library {
                     .filter(u -> u.getCode() == code)
                     .findFirst();
 
-            if(user.isPresent()) {
+            if (user.isPresent()) {
                 name = user.get().getName();
-            }
-            else{
+            } else {
                 System.out.println("Nao foi possivel encontrar nenhum usuario com esse codigo");
                 fw.close();
                 return;
@@ -235,8 +253,8 @@ public class Library {
                     .filter(b -> b.getLender().toLowerCase().equals(name.toLowerCase()))
                     .findFirst();
 
-            if(loan.isPresent() && book.isPresent()){
-                if(today.isAfter(loan.get().getDevDate())) {
+            if (loan.isPresent() && book.isPresent()) {
+                if (today.isAfter(loan.get().getDevDate())) {
                     long dif = ChronoUnit.DAYS.between(loan.get().getDevDate(), today);
                     user.get().calculatePenalty(today, dif);
                     System.out.println("O livro estava atrasado, por isso foi adicionado uma penalidade ao usuario");
@@ -247,18 +265,19 @@ public class Library {
                 book.get().setDevDate(Optional.empty());
                 book.get().setRentDate(Optional.empty());
                 user.get().incRemainingQuota();
-            }
-            else if(loan.isPresent() != true){
+                System.out.println("Devolução do livro: " + book.get().getTitle() + " realizada com sucesso");
+            } else if (loan.isPresent() != true) {
                 System.out.println("Nao foi encontrado nenhum emprestimo com esse codigo e esse livro");
             }
             fw.close();
-        }
-        catch(IOException e)
-        {
-            System.out.println("Erro ao abrir o arquivo");
+        } catch (IOException e) {
+            System.out.println("Arquivo ainda não inicializado!");
         }
     }
 
+    /**
+     * Register a new user with the specified account type
+     */
     private void registerNewUser() {
 
         Scanner scanner = new Scanner(System.in);
@@ -273,20 +292,26 @@ public class Library {
         if (userType.toLowerCase().equals("estudante")) {
             Student user = new Student(name, 4, 15, nextCode);
             userList.add(user);
+            System.out.println("Usuário cadastrado com sucesso, código de cadastro: " + nextCode);
             nextCode++;
         } else if (userType.toLowerCase().equals("professor")) {
             Professor user = new Professor(name, 6, 60, nextCode);
             userList.add(user);
+            System.out.println("Usuário cadastrado com sucesso, código de cadastro: " + nextCode);
             nextCode++;
         } else if (userType.toLowerCase().equals("comunidade")) {
             Community user = new Community(name, 2, 15, nextCode);
             userList.add(user);
+            System.out.println("Usuário cadastrado com sucesso, código de cadastro: " + nextCode);
             nextCode++;
         } else {
             System.out.println("Tipo de usuário inválido!");
         }
     }
 
+    /**
+     * Overload: Prints all users
+     */
     private void printAll(User user) {
         userList
                 .stream()
@@ -294,6 +319,9 @@ public class Library {
                 .forEach(System.out::println);
     }
 
+    /**
+     * Overload: Prints all books
+     */
     private void printAll(Book book) {
         bookList
                 .stream()
@@ -301,15 +329,21 @@ public class Library {
                 .forEach(System.out::println);
     }
 
-    private void printAll(Loan book) {
+    /**
+     * Overload: Prints all loans
+     */
+    private void printAll(Loan loan) {
         loanList
                 .stream()
                 .sorted(Comparator.comparing(Loan::getDevDate).reversed())
                 .forEach(System.out::println);
     }
 
+    /**
+     * Write any changes made to the lists in disk
+     */
     private void saveChanges() {
-        Thread t = new Thread(() ->{
+        Thread t = new Thread(() -> {
             try {
                 ListIterator userItr = userList.listIterator();
                 ListIterator bookItr = bookList.listIterator();
@@ -333,14 +367,16 @@ public class Library {
                 fwUser.close();
                 fwBook.close();
                 fwLoan.close();
-                menu();
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 System.out.println("Erro ao abrir o arquivo");
-            }});
+            }
+        });
         t.start();
     }
 
+    /**
+     * Registers new book
+     */
     private void registerNewBook() {
         Scanner scanner = new Scanner(System.in);
         String title;
@@ -360,9 +396,13 @@ public class Library {
 
         book = new Book(title, author, textBook);
         bookList.add(book);
+        System.out.println("Livro: " + title + " cadastado com sucesso!");
     }
 
-    private void checkLate(){
+    /**
+     * Checks if a loan is overdue
+     */
+    private void checkLate() {
         loanList
                 .stream()
                 .filter(l -> today.isAfter(l.getDevDate()) == true)

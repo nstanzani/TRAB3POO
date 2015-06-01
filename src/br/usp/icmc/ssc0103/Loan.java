@@ -3,9 +3,6 @@ package br.usp.icmc.ssc0103;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Created by naldost on 19/05/15.
- */
 public class Loan {
     private String name;
     private String title;
@@ -22,10 +19,13 @@ public class Loan {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "Nome: " + this.name + "\nLivro: " + this.title + "\nData de devolucao: " + this.devDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n";
     }
 
+    /**
+     * Format that will be used to write to file
+     */
     public String toFile() {
         return this.name + "," + this.title + "," + this.rentDate.getYear() + "," + this.rentDate.getMonthValue() + ","
                 + this.rentDate.getDayOfMonth() + "," + this.devDate.getYear() + "," + this.devDate.getMonthValue() + ","
@@ -40,35 +40,35 @@ public class Loan {
         this.title = title;
     }
 
-    public void setCode(int code){
+    public void setCode(int code) {
         this.code = code;
     }
 
-    public void setRentDate(LocalDate rentDate){
+    public void setRentDate(LocalDate rentDate) {
         this.rentDate = rentDate;
     }
 
-    public void setDevDate(LocalDate devDate){
+    public void setDevDate(LocalDate devDate) {
         this.devDate = devDate;
     }
 
-    public String getName(){
+    public String getName() {
         return this.name;
     }
 
-    public String getTitle(){
+    public String getTitle() {
         return this.title;
     }
 
-    public int getCode(){
+    public int getCode() {
         return this.code;
     }
 
-    public LocalDate getRentDate(){
+    public LocalDate getRentDate() {
         return this.rentDate;
     }
 
-    public LocalDate getDevDate(){
+    public LocalDate getDevDate() {
         return this.devDate;
     }
 
